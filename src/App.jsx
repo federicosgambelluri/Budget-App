@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard';
 import ActionButtons from './components/ActionButtons';
 import TransactionForm from './components/TransactionForm';
+import SettingsModal from './components/SettingsModal';
 import { getTransactions, addTransaction } from './api';
+import { Settings } from 'lucide-react';
 import './index.css';
 
 function App() {
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState(null); // 'income' or 'expense'
+  const [activeModal, setActiveModal] = useState(null); // 'income', 'expense', 'settings'
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -39,6 +41,14 @@ function App() {
 
   return (
     <div className="app-container">
+      <button
+        className="btn-settings"
+        onClick={() => setActiveModal('settings')}
+        style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'transparent', color: 'var(--color-text-muted)', padding: '0.5rem' }}
+      >
+        <Settings size={24} />
+      </button>
+
       <Dashboard balance={balance} isLoading={isLoading} />
 
       <div className="recent-transactions">
@@ -48,7 +58,7 @@ function App() {
         ) : (
           <ul className="transaction-list">
             {transactions.slice(0, 5).map((t, index) => (
-              <li key={index} className={`transaction-item ${t.type}`}>
+              <li key={index} className={`transaction - item ${t.type} `}>
                 <div className="t-info">
                   <span className="t-category">{t.category}</span>
                   <span className="t-note">{t.note}</span>
@@ -67,13 +77,17 @@ function App() {
         onAddExpense={() => setActiveModal('expense')}
       />
 
-      {activeModal && (
+      {(activeModal === 'income' || activeModal === 'expense') && (
         <TransactionForm
           type={activeModal}
           onClose={() => setActiveModal(null)}
           onSubmit={handleAddTransaction}
           isSubmitting={isSubmitting}
         />
+      )}
+
+      {activeModal === 'settings' && (
+        <SettingsModal onClose={() => setActiveModal(null)} />
       )}
     </div>
   );

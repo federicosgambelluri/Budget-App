@@ -1,6 +1,9 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const getApiUrl = () => {
+    return localStorage.getItem('budget_app_api_url') || import.meta.env.VITE_API_URL;
+};
 
 export const getTransactions = async () => {
+    const API_URL = getApiUrl();
     if (!API_URL) return { balance: 0, transactions: [] };
     try {
         const response = await fetch(API_URL);
@@ -13,6 +16,7 @@ export const getTransactions = async () => {
 };
 
 export const addTransaction = async (transaction) => {
+    const API_URL = getApiUrl();
     if (!API_URL) {
         console.warn("API URL not set");
         return { success: false };
