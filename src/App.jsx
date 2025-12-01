@@ -3,8 +3,8 @@ import Dashboard from './components/Dashboard';
 import ActionButtons from './components/ActionButtons';
 import TransactionForm from './components/TransactionForm';
 import SettingsModal from './components/SettingsModal';
-import { getTransactions, addTransaction } from './api';
-import { Settings } from 'lucide-react';
+import { getTransactions, addTransaction, deleteTransaction } from './api';
+import { Settings, Trash2 } from 'lucide-react';
 import './index.css';
 
 function App() {
@@ -13,6 +13,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null); // 'income', 'expense', 'settings'
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -39,15 +40,31 @@ function App() {
     setIsSubmitting(false);
   };
 
+  const handleDelete = async (rowNumber) => {
+    if (!confirm('Sei sicuro di voler eliminare questa transazione?')) return;
+
+    setDeletingId(rowNumber);
+    const result = await deleteTransaction(rowNumber);
+    if (result && result.success) {
+      await fetchData();
+    } else {
+      alert('Errore durante l\'eliminazione.');
+    }
+    setDeletingId(null);
+  };
+
   return (
     <div className="app-container">
-      <button
-        className="btn-settings"
+      {/* Settings button hidden as URL is hardcoded now, but kept in code just in case */}
+      {/* 
+      <button 
+        className="btn-settings" 
         onClick={() => setActiveModal('settings')}
-        style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'transparent', color: 'var(--color-text-muted)', padding: '0.5rem' }}
+        style={{position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'transparent', color: 'var(--color-text-muted)', padding: '0.5rem'}}
       >
         <Settings size={24} />
       </button>
+      */}
 
       <Dashboard balance={balance} isLoading={isLoading} />
 
@@ -58,14 +75,24 @@ function App() {
         ) : (
           <ul className="transaction-list">
             {transactions.slice(0, 5).map((t, index) => (
-              <li key={index} className={`transaction - item ${t.type} `}>
+              <li key={index} className={`transaction-item ${t.type}`}>
                 <div className="t-info">
                   <span className="t-category">{t.category}</span>
                   <span className="t-note">{t.note}</span>
                 </div>
-                <span className="t-amount">
-                  {t.type === 'expense' ? '-' : '+'}€{Math.abs(t.amount).toFixed(2)}
-                </span>
+                <div className="t-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span className="t-amount">
+                    {t.type === 'expense' ? '-' : '+'}€{Math.abs(t.amount).toFixed(2)}
+                  </span>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDelete(t.rowNumber)}
+                    disabled={deletingId === t.rowNumber}
+                    style={{ background: 'transparent', color: '#ef4444', padding: '0.25rem', opacity: deletingId === t.rowNumber ? 0.5 : 1 }}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

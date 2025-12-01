@@ -16,11 +16,18 @@ function handleRequest(e) {
   try {
     const sheet = getSheet();
     
-    // Se è una richiesta POST (o contiene dati), aggiungi transazione
+    // Se è una richiesta POST (o contiene dati), gestisci le azioni
     if (e.postData && e.postData.contents) {
       const data = JSON.parse(e.postData.contents);
-      addTransaction(sheet, data);
-      return response({ success: true, message: "Transazione aggiunta" });
+      
+      if (data.action === 'delete') {
+        deleteTransaction(sheet, data.rowNumber);
+        return response({ success: true, message: "Transazione eliminata" });
+      } else {
+        // Default: aggiungi (o se action='add')
+        addTransaction(sheet, data);
+        return response({ success: true, message: "Transazione aggiunta" });
+      }
     }
 
     // Altrimenti restituisci i dati (GET)
@@ -45,13 +52,17 @@ function getSheet() {
   return sheet;
 }
 
+function deleteTransaction(sheet, rowNumber) {
+  // Verifica semplice per evitare di cancellare l'intestazione o righe non valide
+  if (rowNumber > 1) {
+    sheet.deleteRow(rowNumber);
+  }
+}
+
 function addTransaction(sheet, data) {
   // data: { date, type, amount, method, category, note }
   // type: 'income' o 'expense'
   // amount: numero positivo
-  
-  // Se è un'uscita, salviamo l'importo come negativo per facilitare la somma, 
-  // oppure lo gestiamo nel calcolo. Salviamo come inviato per chiarezza, ma gestiamo il segno.
   
   let amount = parseFloat(data.amount);
   if (data.type === 'expense') {
@@ -91,6 +102,7 @@ function getTransactions(sheet) {
     // Aggiungi alla lista (limitiamo a ultime 20 per performance)
     if (transactions.length < 20) {
       transactions.push({
+        rowNumber: i + 2, // Indice riga nel foglio (1-based, +1 header)
         date: row[0],
         type: row[1],
         amount: amount,

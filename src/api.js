@@ -1,10 +1,13 @@
+// URL Hardcoded come richiesto dall'utente
+const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbxac3j3RUR0CLqJ8ytXn3fysd6Tm3lHnzMxMzvgJqGYJqwah67skiQuGZjSnYbF8t6o/exec";
+
 const getApiUrl = () => {
-    return localStorage.getItem('budget_app_api_url') || import.meta.env.VITE_API_URL;
+    // Usa sempre l'URL hardcoded
+    return HARDCODED_API_URL;
 };
 
 export const getTransactions = async () => {
     const API_URL = getApiUrl();
-    if (!API_URL) return { balance: 0, transactions: [] };
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
@@ -17,10 +20,6 @@ export const getTransactions = async () => {
 
 export const addTransaction = async (transaction) => {
     const API_URL = getApiUrl();
-    if (!API_URL) {
-        console.warn("API URL not set");
-        return { success: false };
-    }
 
     // Google Apps Script requires text/plain or application/x-www-form-urlencoded for CORS sometimes,
     // but usually JSON with no-cors or specific setup.
@@ -28,12 +27,34 @@ export const addTransaction = async (transaction) => {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
-            body: JSON.stringify(transaction),
+            body: JSON.stringify({
+                action: 'add',
+                ...transaction
+            }),
         });
         const data = await response.json();
         return data;
     } catch (error) {
         console.error("Error adding transaction:", error);
+        return { success: false };
+    }
+};
+
+export const deleteTransaction = async (rowNumber) => {
+    const API_URL = getApiUrl();
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: 'delete',
+                rowNumber: rowNumber
+            }),
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error deleting transaction:", error);
         return { success: false };
     }
 };
