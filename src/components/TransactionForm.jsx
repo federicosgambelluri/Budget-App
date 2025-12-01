@@ -22,7 +22,9 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
     };
 
     const categories = [
-        'Spesa', 'Trasporti', 'Svago', 'Bollette', 'Salute', 'Ristorante', 'Shopping', 'Altro'
+        'Spesa', 'Palestra', 'Medico', 'Auto', 'Lavoro',
+        'Casa', 'Bollette', 'Ristorante', 'Trasporti', 'Svago',
+        'Shopping', 'Viaggi', 'Regali', 'Istruzione', 'Abbonamenti', 'Altro'
     ];
 
     const paymentMethods = [
