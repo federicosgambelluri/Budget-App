@@ -74,11 +74,11 @@ function App() {
       </button>
       */}
 
-      <Dashboard 
-        balance={balance} 
+      <Dashboard
+        balance={balance}
         income={totalIncome}
         expense={totalExpense}
-        isLoading={isLoading} 
+        isLoading={isLoading}
       />
 
       <div className="recent-transactions">
@@ -87,7 +87,7 @@ function App() {
           <p className="empty-state">Nessuna transazione recente.</p>
         ) : (
           <ul className="transaction-list">
-            {transactions.slice(0, 5).map((t, index) => (
+            {transactions.map((t, index) => (
               <li key={index} className={`transaction-item ${t.type}`}>
                 <div className="t-info">
                   <span className="t-category">{t.category}</span>
