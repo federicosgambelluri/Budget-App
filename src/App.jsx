@@ -53,6 +53,14 @@ function App() {
     setDeletingId(null);
   };
 
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((acc, t) => acc + parseFloat(t.amount), 0);
+
+  const totalExpense = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((acc, t) => acc + parseFloat(t.amount), 0);
+
   return (
     <div className="app-container">
       {/* Settings button hidden as URL is hardcoded now, but kept in code just in case */}
@@ -66,7 +74,12 @@ function App() {
       </button>
       */}
 
-      <Dashboard balance={balance} isLoading={isLoading} />
+      <Dashboard 
+        balance={balance} 
+        income={totalIncome}
+        expense={totalExpense}
+        isLoading={isLoading} 
+      />
 
       <div className="recent-transactions">
         <h3>Ultime Transazioni</h3>
