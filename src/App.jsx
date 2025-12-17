@@ -3,6 +3,7 @@ import Dashboard from './components/Dashboard';
 import ActionButtons from './components/ActionButtons';
 import TransactionForm from './components/TransactionForm';
 import SettingsModal from './components/SettingsModal';
+import CategorySummary from './components/CategorySummary';
 import { getTransactions, addTransaction, deleteTransaction } from './api';
 import { Settings, Trash2 } from 'lucide-react';
 import './index.css';
@@ -14,6 +15,7 @@ function App() {
   const [activeModal, setActiveModal] = useState(null); // 'income', 'expense', 'settings'
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [view, setView] = useState('dashboard'); // 'dashboard', 'summary'
 
   useEffect(() => {
     fetchData();
@@ -74,48 +76,58 @@ function App() {
       </button>
       */}
 
-      <Dashboard
-        balance={balance}
-        income={totalIncome}
-        expense={totalExpense}
-        isLoading={isLoading}
-      />
+      {view === 'summary' ? (
+        <CategorySummary
+          transactions={transactions}
+          onBack={() => setView('dashboard')}
+        />
+      ) : (
+        <>
+          <Dashboard
+            balance={balance}
+            income={totalIncome}
+            expense={totalExpense}
+            isLoading={isLoading}
+          />
 
-      <div className="recent-transactions">
-        <h3>Ultime Transazioni</h3>
-        {transactions.length === 0 ? (
-          <p className="empty-state">Nessuna transazione recente.</p>
-        ) : (
-          <ul className="transaction-list">
-            {transactions.map((t, index) => (
-              <li key={index} className={`transaction-item ${t.type}`}>
-                <div className="t-info">
-                  <span className="t-category">{t.category}</span>
-                  <span className="t-note">{t.note}</span>
-                </div>
-                <div className="t-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span className="t-amount">
-                    {t.type === 'expense' ? '-' : '+'}€{Math.abs(t.amount).toFixed(2)}
-                  </span>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDelete(t.rowNumber)}
-                    disabled={deletingId === t.rowNumber}
-                    style={{ background: 'transparent', color: '#ef4444', padding: '0.25rem', opacity: deletingId === t.rowNumber ? 0.5 : 1 }}
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+          <div className="recent-transactions">
+            <h3>Transazioni</h3>
+            {transactions.length === 0 ? (
+              <p className="empty-state">Nessuna transazione recente.</p>
+            ) : (
+              <ul className="transaction-list">
+                {transactions.map((t, index) => (
+                  <li key={index} className={`transaction-item ${t.type}`}>
+                    <div className="t-info">
+                      <span className="t-category">{t.category}</span>
+                      <span className="t-note">{t.note}</span>
+                    </div>
+                    <div className="t-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <span className="t-amount">
+                        {t.type === 'expense' ? '-' : '+'}€{Math.abs(t.amount).toFixed(2)}
+                      </span>
+                      <button
+                        className="btn-delete"
+                        onClick={() => handleDelete(t.rowNumber)}
+                        disabled={deletingId === t.rowNumber}
+                        style={{ background: 'transparent', color: '#ef4444', padding: '0.25rem', opacity: deletingId === t.rowNumber ? 0.5 : 1 }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
-      <ActionButtons
-        onAddIncome={() => setActiveModal('income')}
-        onAddExpense={() => setActiveModal('expense')}
-      />
+          <ActionButtons
+            onAddIncome={() => setActiveModal('income')}
+            onAddExpense={() => setActiveModal('expense')}
+            onShowSummary={() => setView('summary')}
+          />
+        </>
+      )}
 
       {(activeModal === 'income' || activeModal === 'expense') && (
         <TransactionForm

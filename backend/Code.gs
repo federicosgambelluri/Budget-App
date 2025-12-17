@@ -99,8 +99,6 @@ function getTransactions(sheet) {
       balance += amount;
     }
 
-    // Aggiungi alla lista (limitiamo a ultime 20 per performance)
-    if (transactions.length < 20) {
       transactions.push({
         rowNumber: i + 2, // Indice riga nel foglio (1-based, +1 header)
         date: row[0],
@@ -110,7 +108,6 @@ function getTransactions(sheet) {
         category: row[4],
         note: row[5]
       });
-    }
   }
 
   return {
