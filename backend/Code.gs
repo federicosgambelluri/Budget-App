@@ -1,5 +1,5 @@
 // Configurazione
-const SHEET_NAME = "Transazioni";
+// Non c'è più un nome fisso, viene generato dinamicamente: "MESE ANNO" (es. "GENNAIO 25")
 
 function doGet(e) {
   return handleRequest(e);
@@ -14,6 +14,7 @@ function handleRequest(e) {
   lock.tryLock(10000);
 
   try {
+    // Usa la data corrente per determinare il foglio attivo
     const sheet = getSheet();
     
     // Se è una richiesta POST (o contiene dati), gestisci le azioni
@@ -41,11 +42,17 @@ function handleRequest(e) {
   }
 }
 
-function getSheet() {
+function getSheet(date) {
+  const d = date || new Date();
+  const months = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE"];
+  const monthName = months[d.getMonth()];
+  const year = d.getFullYear().toString().substr(-2); // Ultime 2 cifre dell'anno
+  const sheetName = `${monthName} ${year}`; // Es. "GENNAIO 25"
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
+  let sheet = ss.getSheetByName(sheetName);
   if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
+    sheet = ss.insertSheet(sheetName);
     // Intestazioni
     sheet.appendRow(["Data", "Tipo", "Importo", "Metodo", "Categoria", "Note"]);
   }

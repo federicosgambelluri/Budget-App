@@ -2,9 +2,21 @@ import React, { useState } from 'react';
 import { X, Check, CreditCard, Banknote } from 'lucide-react';
 
 export default function TransactionForm({ type, onClose, onSubmit, isSubmitting }) {
+    const incomeCategories = [
+        'Altro', 'Donazioni familiari', 'Lavoro', 'Paghetta', 'Regali'
+    ].sort();
+
+    const expenseCategories = [
+        'Abbonamenti', 'Altro', 'Auto e moto', 'Bollette', 'Istruzione',
+        'Palestra', 'Regali', 'Ristoranti', 'Salute e benessere', 'Shopping',
+        'Snack', 'Spesa', 'Svago', 'Trasporti', 'Viaggi'
+    ].sort();
+
+    const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
+
     const [amount, setAmount] = useState('');
     const [method, setMethod] = useState('contanti');
-    const [category, setCategory] = useState('Altro');
+    const [category, setCategory] = useState(currentCategories[0]);
     const [note, setNote] = useState('');
 
     const handleSubmit = (e) => {
@@ -21,11 +33,7 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
         });
     };
 
-    const categories = [
-        'Spesa', 'Palestra', 'Medico', 'Auto', 'Lavoro',
-        'Casa', 'Bollette', 'Ristorante', 'Trasporti', 'Svago',
-        'Shopping', 'Viaggi', 'Regali', 'Istruzione', 'Abbonamenti', 'Altro'
-    ];
+
 
     const paymentMethods = [
         { id: 'contanti', label: 'Contanti', icon: Banknote },
@@ -79,7 +87,7 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
                     <div className="form-group">
                         <label>Categoria</label>
                         <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                            {currentCategories.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                     </div>
 
