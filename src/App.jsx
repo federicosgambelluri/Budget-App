@@ -8,6 +8,7 @@ import ChartsView from './components/ChartsView';
 import Login from './components/Login';
 import { getTransactions, addTransaction, deleteTransaction } from './api';
 import { Settings, Trash2 } from 'lucide-react';
+import LoadingSpinner from './components/LoadingSpinner';
 import './index.css';
 
 function App() {
@@ -95,6 +96,7 @@ function App() {
 
   return (
     <div className="app-container">
+      {isLoading && <LoadingSpinner overlay={true} />}
       {/* Settings button hidden as URL is hardcoded now, but kept in code just in case */}
       {/* 
       <button 

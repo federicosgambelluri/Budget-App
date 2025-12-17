@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check, CreditCard, Banknote } from 'lucide-react';
+import LoadingSpinner from './LoadingSpinner';
 
 export default function TransactionForm({ type, onClose, onSubmit, isSubmitting }) {
     const incomeCategories = [
@@ -102,7 +103,11 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
                     </div>
 
                     <button type="submit" className="btn-submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Salvataggio...' : (
+                        {isSubmitting ? (
+                            <>
+                                <LoadingSpinner size="small" /> Salvataggio...
+                            </>
+                        ) : (
                             <>
                                 <Check size={20} /> Conferma
                             </>
