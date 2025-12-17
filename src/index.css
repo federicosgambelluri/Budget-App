@@ -439,9 +439,18 @@ textarea:focus {
 
 /* DESKTOP LAYOUT OVERHAUL */
 @media (min-width: 1024px) {
+    #root {
+        max-width: 100%;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+    }
+
     .app-container {
         max-width: 1200px;
-        height: 100vh;
+        height: 90vh;
+        /* Give some breathing room */
+        margin-top: 5vh;
         display: grid;
         grid-template-columns: 280px 1fr;
         grid-template-rows: auto 1fr;
@@ -449,7 +458,8 @@ textarea:focus {
             "sidebar stats"
             "sidebar content";
         gap: 2rem;
-        padding: 2rem;
+        padding: 0;
+        /* Padding moved to root or handled by gap */
         overflow: hidden;
     }
 
