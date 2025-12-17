@@ -165,7 +165,7 @@ textarea:focus {
 .recent-transactions {
     flex: 1;
     overflow-y: auto;
-    margin-bottom: 5rem;
+    margin-bottom: 1rem;
     /* Space for fixed buttons if needed, or just margin */
 }
 
