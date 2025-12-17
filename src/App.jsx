@@ -4,11 +4,13 @@ import ActionButtons from './components/ActionButtons';
 import TransactionForm from './components/TransactionForm';
 import SettingsModal from './components/SettingsModal';
 import CategorySummary from './components/CategorySummary';
+import Login from './components/Login';
 import { getTransactions, addTransaction, deleteTransaction } from './api';
 import { Settings, Trash2 } from 'lucide-react';
 import './index.css';
 
 function App() {
+  const [token, setToken] = useState(localStorage.getItem('budget_token') || '');
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,20 +20,43 @@ function App() {
   const [view, setView] = useState('dashboard'); // 'dashboard', 'summary'
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
 
   const fetchData = async () => {
     setIsLoading(true);
-    const data = await getTransactions();
+    const data = await getTransactions(token);
+
+    // If invalid token (backend returns error or empty structure implying auth fail), 
+    // we might want to logout. For now, let's just show what we get.
+    // Ideally backend returns { error: 'Invalid token' }
+    if (data.error === 'Invalid token') {
+      handleLogout();
+      return;
+    }
+
     setBalance(data.balance || 0);
     setTransactions(data.transactions || []);
     setIsLoading(false);
   };
 
+  const handleLogin = (newToken) => {
+    localStorage.setItem('budget_token', newToken);
+    setToken(newToken);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('budget_token');
+    setToken('');
+    setTransactions([]);
+    setBalance(0);
+  };
+
   const handleAddTransaction = async (transaction) => {
     setIsSubmitting(true);
-    const result = await addTransaction(transaction);
+    const result = await addTransaction(transaction, token);
     if (result && result.success) {
       // Optimistic update or refetch
       await fetchData();
@@ -46,7 +71,7 @@ function App() {
     if (!confirm('Sei sicuro di voler eliminare questa transazione?')) return;
 
     setDeletingId(rowNumber);
-    const result = await deleteTransaction(rowNumber);
+    const result = await deleteTransaction(rowNumber, token);
     if (result && result.success) {
       await fetchData();
     } else {
@@ -63,6 +88,10 @@ function App() {
     .filter(t => t.type === 'expense')
     .reduce((acc, t) => acc + parseFloat(t.amount), 0);
 
+  if (!token) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <div className="app-container">
       {/* Settings button hidden as URL is hardcoded now, but kept in code just in case */}
@@ -75,6 +104,22 @@ function App() {
         <Settings size={24} />
       </button>
       */}
+
+      {/* Logout Button (temporary placement or permanent) */}
+      <button
+        onClick={handleLogout}
+        style={{
+          position: 'absolute',
+          top: '1.5rem',
+          right: '1.5rem',
+          background: 'transparent',
+          color: 'var(--color-text-muted)',
+          padding: '0.5rem',
+          fontSize: '0.8rem'
+        }}
+      >
+        Esci
+      </button>
 
       {view === 'summary' ? (
         <CategorySummary

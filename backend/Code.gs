@@ -1,5 +1,6 @@
 // Configurazione
 // Non c'è più un nome fisso, viene generato dinamicamente: "MESE ANNO" (es. "GENNAIO 25")
+const CORRECT_TOKEN = "MioBudget2025"; // CAMBIA QUESTA PASSWORD!
 
 function doGet(e) {
   return handleRequest(e);
@@ -14,13 +15,28 @@ function handleRequest(e) {
   lock.tryLock(10000);
 
   try {
+    // Verifica Token
+    let token = "";
+    let data = null;
+
+    // Se è POST con body JSON
+    if (e.postData && e.postData.contents) {
+      data = JSON.parse(e.postData.contents);
+      token = data.token;
+    } else {
+      // Se è GET o POST form-encoded
+      token = e.parameter.token;
+    }
+
+    if (token !== CORRECT_TOKEN) {
+       return response({ success: false, error: "Invalid token" });
+    }
+
     // Usa la data corrente per determinare il foglio attivo
     const sheet = getSheet();
     
-    // Se è una richiesta POST (o contiene dati), gestisci le azioni
-    if (e.postData && e.postData.contents) {
-      const data = JSON.parse(e.postData.contents);
-      
+    // Se abbiamo già parsato i dati (POST)
+    if (data) {
       if (data.action === 'delete') {
         deleteTransaction(sheet, data.rowNumber);
         return response({ success: true, message: "Transazione eliminata" });
@@ -32,8 +48,8 @@ function handleRequest(e) {
     }
 
     // Altrimenti restituisci i dati (GET)
-    const data = getTransactions(sheet);
-    return response(data);
+    const result = getTransactions(sheet);
+    return response(result);
 
   } catch (error) {
     return response({ success: false, error: error.toString() });

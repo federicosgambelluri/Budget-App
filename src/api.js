@@ -7,10 +7,12 @@ const getApiUrl = () => {
     return HARDCODED_API_URL;
 };
 
-export const getTransactions = async () => {
+export const getTransactions = async (token) => {
     const API_URL = getApiUrl();
     try {
-        const response = await fetch(API_URL);
+        // Append token to URL for GET request
+        const urlWithToken = `${API_URL}?token=${encodeURIComponent(token)}`;
+        const response = await fetch(urlWithToken);
         const data = await response.json();
         return data;
     } catch (error) {
@@ -19,17 +21,15 @@ export const getTransactions = async () => {
     }
 };
 
-export const addTransaction = async (transaction) => {
+export const addTransaction = async (transaction, token) => {
     const API_URL = getApiUrl();
 
-    // Google Apps Script requires text/plain or application/x-www-form-urlencoded for CORS sometimes,
-    // but usually JSON with no-cors or specific setup.
-    // Standard way for public web app:
     try {
         const response = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({
                 action: 'add',
+                token: token,
                 ...transaction
             }),
         });
@@ -41,7 +41,7 @@ export const addTransaction = async (transaction) => {
     }
 };
 
-export const deleteTransaction = async (rowNumber) => {
+export const deleteTransaction = async (rowNumber, token) => {
     const API_URL = getApiUrl();
 
     try {
@@ -49,6 +49,7 @@ export const deleteTransaction = async (rowNumber) => {
             method: "POST",
             body: JSON.stringify({
                 action: 'delete',
+                token: token,
                 rowNumber: rowNumber
             }),
         });
