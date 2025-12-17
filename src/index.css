@@ -436,3 +436,211 @@ textarea:focus {
 .modal-content.income .btn-submit {
     background: var(--color-success);
 }
+
+/* DESKTOP LAYOUT OVERHAUL */
+@media (min-width: 1024px) {
+    .app-container {
+        max-width: 1200px;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "sidebar stats"
+            "sidebar content";
+        gap: 2rem;
+        padding: 2rem;
+        overflow: hidden;
+    }
+
+    /* Sidebar (ActionButtons) */
+    .action-container {
+        grid-area: sidebar;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--color-surface);
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+        border: 1px solid var(--color-border);
+    }
+
+    .action-container>div:first-child {
+        flex-direction: column;
+        margin-bottom: 2rem !important;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 0 !important;
+    }
+
+    .btn-summary,
+    .btn-charts {
+        width: 100%;
+        justify-content: flex-start !important;
+        padding-left: 1.5rem !important;
+    }
+
+    .btn-action {
+        flex-direction: row;
+        gap: 1rem;
+        padding: 1rem;
+        justify-content: flex-start;
+    }
+
+    .btn-action .icon-circle {
+        margin-bottom: 0;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+    }
+
+    .btn-action span {
+        font-size: 1rem;
+    }
+
+    /* Dashboard Stats */
+    .dashboard {
+        grid-area: stats;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 3rem;
+    }
+
+    .stat-item {
+        align-items: flex-start;
+        padding-left: 1rem;
+        border-left: 1px solid var(--color-border);
+    }
+
+    .stat-item:first-child {
+        border-left: none;
+        padding-left: 0;
+    }
+
+    .balance-amount {
+        font-size: 2.5rem;
+    }
+
+    /* Transactions List */
+    .recent-transactions {
+        grid-area: content;
+        margin-bottom: 0;
+        background: var(--color-surface);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        overflow-y: auto;
+        border: 1px solid var(--color-border);
+    }
+
+    .recent-transactions h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        position: sticky;
+        top: 0;
+        background: var(--color-surface);
+        padding-bottom: 1rem;
+        z-index: 10;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .transaction-item {
+        display: grid;
+        grid-template-columns: 2fr 3fr 1fr auto;
+        gap: 1.5rem;
+        padding: 1.25rem;
+        align-items: center;
+        transition: background 0.2s;
+    }
+
+    .transaction-item:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .t-info {
+        display: contents;
+        /* Let children participate in grid */
+    }
+
+    .t-category {
+        font-size: 1rem;
+        grid-column: 1;
+    }
+
+    .t-note {
+        grid-column: 2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .t-right {
+        display: contents !important;
+    }
+
+    .t-amount {
+        grid-column: 3;
+        text-align: right;
+    }
+
+    .btn-delete {
+        grid-column: 4;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .transaction-item:hover .btn-delete {
+        opacity: 1;
+    }
+
+    /* Full Screen Views (Charts, Summary) */
+    .charts-container,
+    .category-summary {
+        grid-column: 1 / -1;
+        grid-row: 1 / -1;
+        z-index: 20;
+        background: var(--color-bg);
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* Charts Specific */
+    .charts-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-content: start;
+    }
+
+    .charts-container .header {
+        grid-column: 1 / -1;
+        position: static !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .chart-card {
+        height: 400px !important;
+    }
+
+    .chart-card:last-child {
+        grid-column: 1 / -1;
+    }
+}
