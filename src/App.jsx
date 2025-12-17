@@ -4,6 +4,7 @@ import ActionButtons from './components/ActionButtons';
 import TransactionForm from './components/TransactionForm';
 import SettingsModal from './components/SettingsModal';
 import CategorySummary from './components/CategorySummary';
+import ChartsView from './components/ChartsView';
 import Login from './components/Login';
 import { getTransactions, addTransaction, deleteTransaction } from './api';
 import { Settings, Trash2 } from 'lucide-react';
@@ -17,7 +18,7 @@ function App() {
   const [activeModal, setActiveModal] = useState(null); // 'income', 'expense', 'settings'
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-  const [view, setView] = useState('dashboard'); // 'dashboard', 'summary'
+  const [view, setView] = useState('dashboard'); // 'dashboard', 'summary', 'charts'
 
   useEffect(() => {
     if (token) {
@@ -126,6 +127,11 @@ function App() {
           transactions={transactions}
           onBack={() => setView('dashboard')}
         />
+      ) : view === 'charts' ? (
+        <ChartsView
+          transactions={transactions}
+          onBack={() => setView('dashboard')}
+        />
       ) : (
         <>
           <Dashboard
@@ -170,6 +176,7 @@ function App() {
             onAddIncome={() => setActiveModal('income')}
             onAddExpense={() => setActiveModal('expense')}
             onShowSummary={() => setView('summary')}
+            onShowCharts={() => setView('charts')}
           />
         </>
       )}

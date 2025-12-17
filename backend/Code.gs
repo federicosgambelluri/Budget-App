@@ -1,6 +1,6 @@
 // Configurazione
 // Non c'è più un nome fisso, viene generato dinamicamente: "MESE ANNO" (es. "GENNAIO 25")
-const CORRECT_TOKEN = "MioBudget2025"; // CAMBIA QUESTA PASSWORD!
+const CORRECT_TOKEN = "qwqw"; // CAMBIA QUESTA PASSWORD!
 
 function doGet(e) {
   return handleRequest(e);
