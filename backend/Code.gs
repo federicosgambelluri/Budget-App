@@ -82,17 +82,24 @@ function deleteTransaction(sheet, rowNumber) {
   }
 }
 
+
 function addTransaction(sheet, data) {
   // data: { date, type, amount, method, category, note }
-  // type: 'income' o 'expense'
+  // type: 'income', 'expense', 'cash_income', 'cash_expense'
   // amount: numero positivo
   
   let amount = parseFloat(data.amount);
-  if (data.type === 'expense') {
+  
+  // Gestione segno based on type
+  if (data.type === 'expense' || data.type === 'cash_expense') {
     amount = -Math.abs(amount);
   } else {
     amount = Math.abs(amount);
   }
+
+  // Mappa i tipi "speciali" frontend-only in tipi salvati coerenti se necessario,
+  // qui salvo direttamente il tipo che arriva dal frontend.
+  // 'cash_income' e 'cash_expense' saranno usati per escluderli dai totali.
 
   sheet.appendRow([
     new Date(), // Timestamp server
@@ -111,23 +118,38 @@ function getTransactions(sheet) {
   
   // Calcola saldo
   let balance = 0;
+  let cashBalance = 1090; // Base iniziale contanti
   const transactions = [];
 
   // Itera dall'ultima alla prima per mostrare le più recenti
   for (let i = dataRows.length - 1; i >= 0; i--) {
     const row = dataRows[i];
     // [Data, Tipo, Importo, Metodo, Categoria, Note]
+    const type = row[1];
     const amount = parseFloat(row[2]);
+    const method = row[3];
+    
     if (!isNaN(amount)) {
-      balance += amount;
+      // 1. MAIN BUDGET CALCULATION
+      // Include solo income e expense standard
+      if (type === 'income' || type === 'expense') {
+        balance += amount;
+      }
+      
+      // 2. CASH BALANCE CALCULATION
+      // Include TUTTI i movimenti in contanti (standard e extra)
+      // Se il metodo è 'contanti', impatta il saldo contanti.
+      if (method === 'contanti') {
+         cashBalance += amount;
+      }
     }
 
       transactions.push({
         rowNumber: i + 2, // Indice riga nel foglio (1-based, +1 header)
         date: row[0],
-        type: row[1],
+        type: type,
         amount: amount,
-        method: row[3],
+        method: method,
         category: row[4],
         note: row[5]
       });
@@ -135,6 +157,7 @@ function getTransactions(sheet) {
 
   return {
     balance: balance,
+    cashBalance: cashBalance,
     transactions: transactions
   };
 }

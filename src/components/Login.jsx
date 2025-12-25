@@ -3,14 +3,11 @@ import { Lock, ArrowRight } from 'lucide-react';
 
 export default function Login({ onLogin }) {
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (password.trim()) {
             onLogin(password.trim());
-        } else {
-            setError(true);
         }
     };
 
@@ -56,7 +53,6 @@ export default function Login({ onLogin }) {
                             value={password}
                             onChange={(e) => {
                                 setPassword(e.target.value);
-                                setError(false);
                             }}
                             placeholder="Password"
                             style={{

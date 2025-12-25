@@ -1,7 +1,7 @@
 import React from 'react';
-import { Wallet } from 'lucide-react';
+import { Wallet, Banknote } from 'lucide-react';
 
-export default function Dashboard({ balance, income, expense, isLoading }) {
+export default function Dashboard({ balance, cashBalance, income, expense, isLoading }) {
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('it-IT', {
             style: 'currency',
@@ -42,6 +42,26 @@ export default function Dashboard({ balance, income, expense, isLoading }) {
                         <span className="stat-value expense">{formatCurrency(expense)}</span>
                     )}
                 </div>
+            </div>
+
+            <div className="cash-balance-section" style={{
+                marginTop: '1.5rem',
+                paddingTop: '1rem',
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.25rem'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-muted)' }}>
+                    <Banknote size={16} />
+                    <span className="stat-label">Saldo Contanti</span>
+                </div>
+                {isLoading ? (
+                    <span className="loading-pulse small">...</span>
+                ) : (
+                    <span className="stat-value" style={{ fontSize: '1.2rem' }}>{formatCurrency(cashBalance)}</span>
+                )}
             </div>
         </div>
     );

@@ -8,9 +8,9 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
     ].sort();
 
     const expenseCategories = [
-        'Abbonamenti', 'Altro', 'Auto e moto', 'Bollette', 'Istruzione',
+        'Abbonamenti', 'Altro', 'Auto e moto', 'Bollette', 'Carburante', 'Istruzione',
         'Palestra', 'Regali', 'Ristoranti', 'Salute e benessere', 'Shopping',
-        'Snack', 'Spesa', 'Svago', 'Trasporti', 'Viaggi'
+        'Snack', 'Spesa', 'Svago', 'Telepass', 'Trasporti', 'Viaggi'
     ].sort();
 
     const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
@@ -19,16 +19,23 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
     const [method, setMethod] = useState('contanti');
     const [category, setCategory] = useState(currentCategories[0]);
     const [note, setNote] = useState('');
+    const [isCashOnly, setIsCashOnly] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!amount) return;
 
+        // Determine final type based on checkbox
+        let finalType = type;
+        if (isCashOnly && method === 'contanti') {
+            finalType = type === 'income' ? 'cash_income' : 'cash_expense';
+        }
+
         onSubmit({
-            type, // 'income' or 'expense'
+            type: finalType,
             amount: parseFloat(amount),
             method,
-            category,
+            category: isCashOnly ? 'EXTRA_CASH' : category, // Optional: override category or keep as selected
             note,
             date: new Date().toISOString(),
         });
@@ -91,6 +98,21 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
                             {currentCategories.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                     </div>
+
+                    {method === 'contanti' && (
+                        <div className="form-group checkbox-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+                            <input
+                                type="checkbox"
+                                id="cashOnly"
+                                checked={isCashOnly}
+                                onChange={(e) => setIsCashOnly(e.target.checked)}
+                                style={{ width: 'auto', margin: 0 }}
+                            />
+                            <label htmlFor="cashOnly" style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                                Solo su Saldo Contanti (Extra Budget)
+                            </label>
+                        </div>
+                    )}
 
                     <div className="form-group">
                         <label>Note</label>

@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Save, Settings } from 'lucide-react';
 
 export default function SettingsModal({ onClose }) {
-    const [url, setUrl] = useState('');
-
-    useEffect(() => {
-        const savedUrl = localStorage.getItem('budget_app_api_url') || '';
-        setUrl(savedUrl);
-    }, []);
+    const [url, setUrl] = useState(() => localStorage.getItem('budget_app_api_url') || '');
 
     const handleSave = (e) => {
         e.preventDefault();

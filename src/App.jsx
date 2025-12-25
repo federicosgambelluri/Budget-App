@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Dashboard from './components/Dashboard';
 import ActionButtons from './components/ActionButtons';
 import TransactionForm from './components/TransactionForm';
@@ -14,6 +14,7 @@ import './index.css';
 function App() {
   const [token, setToken] = useState(localStorage.getItem('budget_token') || '');
   const [balance, setBalance] = useState(0);
+  const [cashBalance, setCashBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null); // 'income', 'expense', 'settings'
@@ -21,13 +22,14 @@ function App() {
   const [deletingId, setDeletingId] = useState(null);
   const [view, setView] = useState('dashboard'); // 'dashboard', 'summary', 'charts'
 
-  useEffect(() => {
-    if (token) {
-      fetchData();
-    }
-  }, [token]);
+  const handleLogout = () => {
+    localStorage.removeItem('budget_token');
+    setToken('');
+    setTransactions([]);
+    setBalance(0);
+  };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     const data = await getTransactions(token);
 
@@ -40,20 +42,21 @@ function App() {
     }
 
     setBalance(data.balance || 0);
+    setCashBalance(data.cashBalance || 0);
     setTransactions(data.transactions || []);
     setIsLoading(false);
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchData();
+    }
+  }, [token, fetchData]);
 
   const handleLogin = (newToken) => {
     localStorage.setItem('budget_token', newToken);
     setToken(newToken);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('budget_token');
-    setToken('');
-    setTransactions([]);
-    setBalance(0);
   };
 
   const handleAddTransaction = async (transaction) => {
@@ -138,6 +141,7 @@ function App() {
         <>
           <Dashboard
             balance={balance}
+            cashBalance={cashBalance}
             income={totalIncome}
             expense={totalExpense}
             isLoading={isLoading}
