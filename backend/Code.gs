@@ -76,33 +76,40 @@ function getSheet(date) {
 }
 
 function deleteTransaction(sheet, rowNumber) {
-  // Verifica semplice per evitare di cancellare l'intestazione o righe non valide
-  if (rowNumber > 1) {
-    sheet.deleteRow(rowNumber);
-  }
+    // Verifiche eliminazione riga
+    if (rowNumber > 1) {
+      // PRIMA di cancellare, leggiamo la riga per aggiornare il saldo contanti se necessario
+      // [Data, Tipo, Importo, Metodo, Categoria, Note]
+      const rowData = sheet.getRange(rowNumber, 1, 1, 6).getValues()[0];
+      const method = rowData[3];
+      const amount = parseFloat(rowData[2]);
+      
+      if (method === 'contanti' && !isNaN(amount)) {
+         updateCashBalance(-amount); // Sottraiamo l'importo (inversione operazione)
+      }
+
+      sheet.deleteRow(rowNumber);
+    }
 }
 
-
 function addTransaction(sheet, data) {
-  // data: { date, type, amount, method, category, note }
-  // type: 'income', 'expense', 'cash_income', 'cash_expense'
-  // amount: numero positivo
-  
+  // ... (recupero parametri)
   let amount = parseFloat(data.amount);
   
-  // Gestione segno based on type
   if (data.type === 'expense' || data.type === 'cash_expense') {
     amount = -Math.abs(amount);
   } else {
     amount = Math.abs(amount);
   }
 
-  // Mappa i tipi "speciali" frontend-only in tipi salvati coerenti se necessario,
-  // qui salvo direttamente il tipo che arriva dal frontend.
-  // 'cash_income' e 'cash_expense' saranno usati per escluderli dai totali.
+  // Aggiorna Global Cash Balance immediately
+  // Indipendente dal foglio/mese
+  if (data.method === 'contanti') {
+    updateCashBalance(amount);
+  }
 
   sheet.appendRow([
-    new Date(), // Timestamp server
+    new Date(),
     data.type,
     amount,
     data.method,
@@ -113,46 +120,36 @@ function addTransaction(sheet, data) {
 
 function getTransactions(sheet) {
   const rows = sheet.getDataRange().getValues();
-  // Rimuovi intestazione
   const dataRows = rows.slice(1);
   
-  // Calcola saldo
   let balance = 0;
-  let cashBalance = 1090; // Base iniziale contanti
+  
+  // LEGGI SALDO CONTANTI GLOBALE
+  // Se non esiste, lo inizializza a 1080
+  let cashBalance = getCashBalance();
+
   const transactions = [];
 
-  // Itera dall'ultima alla prima per mostrare le più recenti
   for (let i = dataRows.length - 1; i >= 0; i--) {
     const row = dataRows[i];
-    // [Data, Tipo, Importo, Metodo, Categoria, Note]
     const type = row[1];
     const amount = parseFloat(row[2]);
     const method = row[3];
     
-    if (!isNaN(amount)) {
-      // 1. MAIN BUDGET CALCULATION
-      // Include solo income e expense standard
-      if (type === 'income' || type === 'expense') {
+    // Calcolo saldo "Mese Corrente" (Main Budget)
+    if (!isNaN(amount) && (type === 'income' || type === 'expense')) {
         balance += amount;
-      }
-      
-      // 2. CASH BALANCE CALCULATION
-      // Include TUTTI i movimenti in contanti (standard e extra)
-      // Se il metodo è 'contanti', impatta il saldo contanti.
-      if (method === 'contanti') {
-         cashBalance += amount;
-      }
     }
 
-      transactions.push({
-        rowNumber: i + 2, // Indice riga nel foglio (1-based, +1 header)
-        date: row[0],
-        type: type,
-        amount: amount,
-        method: method,
-        category: row[4],
-        note: row[5]
-      });
+    transactions.push({
+      rowNumber: i + 2,
+      date: row[0],
+      type: type,
+      amount: amount,
+      method: method,
+      category: row[4],
+      note: row[5]
+    });
   }
 
   return {
@@ -160,6 +157,27 @@ function getTransactions(sheet) {
     cashBalance: cashBalance,
     transactions: transactions
   };
+}
+
+// --- HELPER FUNCTIONS PER SALDO PERSISTENTE ---
+
+function getCashBalance() {
+  const props = PropertiesService.getScriptProperties();
+  let stored = props.getProperty('CASH_BALANCE');
+  
+  // Se è la prima volta assoluta che usiamo questa logica, partiamo da 1080
+  if (stored === null) {
+    stored = 1080;
+    props.setProperty('CASH_BALANCE', stored.toString());
+  }
+  return parseFloat(stored);
+}
+
+function updateCashBalance(delta) {
+  const props = PropertiesService.getScriptProperties();
+  let current = getCashBalance(); // Assicura init se null
+  let newBalance = current + delta;
+  props.setProperty('CASH_BALANCE', newBalance.toString());
 }
 
 function response(data) {
