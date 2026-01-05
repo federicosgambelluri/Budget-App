@@ -1,17 +1,22 @@
 // URL Hardcoded come richiesto dall'utente
 //const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbxac3j3RUR0CLqJ8ytXn3fysd6Tm3lHnzMxMzvgJqGYJqwah67skiQuGZjSnYbF8t6o/exec";
 
-const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbwSTUM5mrmEx6hLED3DyO-inreMo5x0fghpI_BEdVuzAmjIuhjr1NbCdE83ofr0QexO/exec";
+const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbwpgu_OyZbwZYIlgiGT1BjH_8aJ4iHFvoD580QNCtlVTzpHHV8eLsM-dIz-uW5Vrzdv/exec";
 const getApiUrl = () => {
     // Usa sempre l'URL hardcoded
     return HARDCODED_API_URL;
 };
 
-export const getTransactions = async (token) => {
+export const getTransactions = async (token, month, year) => {
     const API_URL = getApiUrl();
     try {
-        // Append token to URL for GET request
-        const urlWithToken = `${API_URL}?token=${encodeURIComponent(token)}`;
+        // Append token, month, and year to URL for GET request
+        let urlWithToken = `${API_URL}?token=${encodeURIComponent(token)}`;
+
+        if (month !== undefined && year !== undefined) {
+            urlWithToken += `&month=${month}&year=${year}`;
+        }
+
         const response = await fetch(urlWithToken);
         const data = await response.json();
         return data;

@@ -15,12 +15,14 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('budget_token') || '');
   const [balance, setBalance] = useState(0);
   const [cashBalance, setCashBalance] = useState(0);
+  const [totalSavings, setTotalSavings] = useState(0); // New State
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null); // 'income', 'expense', 'settings'
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [view, setView] = useState('dashboard'); // 'dashboard', 'summary', 'charts'
+  const [currentDate, setCurrentDate] = useState(new Date()); // Gestione Mese/Anno
 
   const handleLogout = () => {
     localStorage.removeItem('budget_token');
@@ -31,7 +33,11 @@ function App() {
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
-    const data = await getTransactions(token);
+    // Passiamo mese e anno alla API
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
+    
+    const data = await getTransactions(token, month, year);
 
     // If invalid token (backend returns error or empty structure implying auth fail), 
     // we might want to logout. For now, let's just show what we get.
@@ -43,9 +49,10 @@ function App() {
 
     setBalance(data.balance || 0);
     setCashBalance(data.cashBalance || 0);
+    setTotalSavings(data.totalSavings || 0);
     setTransactions(data.transactions || []);
     setIsLoading(false);
-  }, [token]);
+  }, [token, currentDate]);
 
   useEffect(() => {
     if (token) {
@@ -84,6 +91,34 @@ function App() {
     }
     setDeletingId(null);
   };
+
+  // Navigation handlers
+  const handlePrevMonth = () => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setCurrentDate(newDate);
+  };
+
+  const handleNextMonth = () => {
+    const newDate = new Date(currentDate);
+    const nextMonth = new Date(newDate.setMonth(newDate.getMonth() + 1));
+    const today = new Date();
+    
+    // Non andare oltre il mese corrente reale (opzionale, ma richiesto implicitamente "tornare al foglio del mese corrente")
+    // Se "quando sono al mese corrente la frecca dx non è più visibile", allora qui controlliamo solo di non sforare per sicurezza
+    if (nextMonth <= today || (nextMonth.getMonth() === today.getMonth() && nextMonth.getFullYear() === today.getFullYear())) {
+        setCurrentDate(nextMonth);
+    } else {
+        // Se siamo già a oggi, forziamo a oggi (o non facciamo nulla)
+        setCurrentDate(today);
+    }
+  };
+
+  const isCurrentMonth = () => {
+      const today = new Date();
+      return currentDate.getMonth() === today.getMonth() && currentDate.getFullYear() === today.getFullYear();
+  };
+
 
   const totalIncome = transactions
     .filter(t => t.type === 'income')
@@ -142,9 +177,14 @@ function App() {
           <Dashboard
             balance={balance}
             cashBalance={cashBalance}
+            totalSavings={totalSavings}
             income={totalIncome}
             expense={totalExpense}
             isLoading={isLoading}
+            currentDate={currentDate}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+            isCurrentMonth={isCurrentMonth()}
           />
 
           <div className="recent-transactions">

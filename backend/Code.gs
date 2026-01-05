@@ -18,22 +18,34 @@ function handleRequest(e) {
     // Verifica Token
     let token = "";
     let data = null;
+    let requestYear = null;
+    let requestMonth = null;
 
     // Se è POST con body JSON
     if (e.postData && e.postData.contents) {
       data = JSON.parse(e.postData.contents);
       token = data.token;
+      // Per le operazioni di scrittura, usiamo la data corrente o quella specificata (se servisse in futuro)
+      // Ma per ora l'addTransaction usa new Date() quindi va sul mese corrente reale
+      // Se volessimo aggiungere transazioni nel passato, dovremmo passare la data nel payload
     } else {
       // Se è GET o POST form-encoded
       token = e.parameter.token;
+      requestYear = e.parameter.year;
+      requestMonth = e.parameter.month;
     }
 
     if (token !== CORRECT_TOKEN) {
        return response({ success: false, error: "Invalid token" });
     }
 
-    // Usa la data corrente per determinare il foglio attivo
-    const sheet = getSheet();
+    // Determina la data target per la lettura/scrittura foglio
+    let targetDate = new Date();
+    if (requestYear && requestMonth !== undefined) {
+        targetDate = new Date(parseInt(requestYear), parseInt(requestMonth), 1);
+    }
+
+    const sheet = getSheet(targetDate);
     
     // Se abbiamo già parsato i dati (POST)
     if (data) {
@@ -42,13 +54,17 @@ function handleRequest(e) {
         return response({ success: true, message: "Transazione eliminata" });
       } else {
         // Default: aggiungi (o se action='add')
-        addTransaction(sheet, data);
-        return response({ success: true, message: "Transazione aggiunta" });
+        // NOTA: addTransaction usa new Date() internamente per la data della transazione (quindi oggi)
+        // Se volessimo scrivere nel passato bisognerebbe passare la data corretta a getSheet dentro addTransaction
+        // Per ora manteniamo la logica che scrive sul mese corrente reale
+         const currentSheet = getSheet(new Date()); 
+         addTransaction(currentSheet, data);
+         return response({ success: true, message: "Transazione aggiunta" });
       }
     }
 
     // Altrimenti restituisci i dati (GET)
-    const result = getTransactions(sheet);
+    const result = getTransactions(sheet, targetDate);
     return response(result);
 
   } catch (error) {
@@ -118,7 +134,7 @@ function addTransaction(sheet, data) {
   ]);
 }
 
-function getTransactions(sheet) {
+function getTransactions(sheet, currentDate) {
   const rows = sheet.getDataRange().getValues();
   const dataRows = rows.slice(1);
   
@@ -127,6 +143,9 @@ function getTransactions(sheet) {
   // LEGGI SALDO CONTANTI GLOBALE
   // Se non esiste, lo inizializza a 1080
   let cashBalance = getCashBalance();
+
+  // CALCOLO RISPARMIO TOTALE (Mesi precedenti)
+  let totalSavings = calculateTotalSavings(currentDate);
 
   const transactions = [];
 
@@ -155,8 +174,47 @@ function getTransactions(sheet) {
   return {
     balance: balance,
     cashBalance: cashBalance,
+    totalSavings: totalSavings,
     transactions: transactions
   };
+}
+
+// Calcola il risparmio accumulato dai mesi precedenti dell'anno corrente
+// Itera da Gennaio fino al mese precedente a targetDate
+function calculateTotalSavings(targetDate) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const months = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE"];
+  
+  const targetMonthIndex = targetDate.getMonth();
+  const targetYearFull = targetDate.getFullYear();
+  const targetYearShort = targetYearFull.toString().substr(-2);
+  
+  // Assumiamo che il risparmio si calcoli solo sui mesi dell'anno corrente o eventualmente anche anni passati?
+  // La richiesta dice "a partire da gennaio". Assumiamo Gennaio dell'anno richiesto.
+  
+  let savings = 0;
+  
+  for (let i = 0; i < targetMonthIndex; i++) {
+    const sheetName = `${months[i]} ${targetYearShort}`;
+    const sheet = ss.getSheetByName(sheetName);
+    
+    if (sheet) {
+      const rows = sheet.getDataRange().getValues();
+      const dataRows = rows.slice(1); // Salta header
+      
+      let sheetBalance = 0;
+      dataRows.forEach(row => {
+          const type = row[1];
+          const amount = parseFloat(row[2]);
+           if (!isNaN(amount) && (type === 'income' || type === 'expense')) {
+              sheetBalance += amount;
+          }
+      });
+      savings += sheetBalance;
+    }
+  }
+  
+  return savings;
 }
 
 // --- HELPER FUNCTIONS PER SALDO PERSISTENTE ---
