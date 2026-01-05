@@ -194,7 +194,7 @@ function calculateTotalSavings(targetDate) {
   
   let savings = 0;
   
-  for (let i = 0; i < targetMonthIndex; i++) {
+  for (let i = 0; i <= targetMonthIndex; i++) {
     const sheetName = `${months[i]} ${targetYearShort}`;
     const sheet = ss.getSheetByName(sheetName);
     
