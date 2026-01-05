@@ -4,13 +4,13 @@ import LoadingSpinner from './LoadingSpinner';
 
 export default function TransactionForm({ type, onClose, onSubmit, isSubmitting }) {
     const incomeCategories = [
-        'Altro', 'Donazioni familiari', 'Lavoro', 'Paghetta', 'Regali'
+        'Altro', 'Donazioni familiari', 'Lavoro', 'Paghetta', 'Regali', 'Rimborsi'
     ].sort();
 
     const expenseCategories = [
-        'Abbonamenti', 'Altro', 'Auto e moto', 'Bollette', 'Carburante', 'Istruzione',
-        'Palestra', 'Regali', 'Ristoranti', 'Salute e benessere', 'Shopping',
-        'Snack', 'Spesa', 'Svago', 'Telepass', 'Trasporti', 'Viaggi'
+        'Abbonamenti', 'Aerei', 'Altro', 'Auto e moto', 'Bollette', 'Bus', 'Carburante', 'Hotel', 'Istruzione',
+        'Palestra', 'Regali', 'Rimborsi', 'Ristoranti', 'Salute e benessere', 'Shopping',
+        'Snack', 'Spesa', 'Svago', 'Telepass', 'Treni'
     ].sort();
 
     const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
