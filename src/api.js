@@ -1,7 +1,7 @@
 // URL Hardcoded come richiesto dall'utente
 //const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbxac3j3RUR0CLqJ8ytXn3fysd6Tm3lHnzMxMzvgJqGYJqwah67skiQuGZjSnYbF8t6o/exec";
 
-const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbwpgu_OyZbwZYIlgiGT1BjH_8aJ4iHFvoD580QNCtlVTzpHHV8eLsM-dIz-uW5Vrzdv/exec";
+const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycby4Ud5hzr30peDSz1HG1hUKDxpRnfClfk089teLd-j_p3S1MGm3bP9AhfKzf3Dox1ho/exec";
 const getApiUrl = () => {
     // Usa sempre l'URL hardcoded
     return HARDCODED_API_URL;
