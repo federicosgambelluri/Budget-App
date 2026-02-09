@@ -1,7 +1,7 @@
 import React from 'react';
-import { Plus, Minus, BarChart3, PieChart } from 'lucide-react';
+import { Plus, Minus, BarChart3, PieChart, Zap } from 'lucide-react';
 
-export default function ActionButtons({ onAddIncome, onAddExpense, onShowSummary, onShowCharts }) {
+export default function ActionButtons({ onAddIncome, onAddExpense, onShowSummary, onShowCharts, onAddRecurrent }) {
     return (
         <div className="action-container" style={{ marginTop: 'auto', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {/* Income / Expense Buttons - Smaller as requested */}
@@ -51,6 +51,30 @@ export default function ActionButtons({ onAddIncome, onAddExpense, onShowSummary
                     <span>Uscita</span>
                 </button>
             </div>
+
+            {/* Recurrent Expenses Button */}
+            <button
+                className="btn-recurrent"
+                onClick={onAddRecurrent}
+                style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '0.75rem',
+                    background: 'rgba(249, 115, 22, 0.1)', // Orange tint
+                    color: '#f97316',
+                    border: '1px solid rgba(249, 115, 22, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    cursor: 'pointer'
+                }}
+            >
+                <Zap size={20} />
+                <span>Spese Ricorrenti</span>
+            </button>
 
             {/* Summary / Charts Buttons */}
             <div style={{ display: 'flex', gap: '1rem' }}>

@@ -5,6 +5,7 @@ import TransactionForm from './components/TransactionForm';
 import SettingsModal from './components/SettingsModal';
 import CategorySummary from './components/CategorySummary';
 import ChartsView from './components/ChartsView';
+import RecurrentExpenseModal from './components/RecurrentExpenseModal';
 import Login from './components/Login';
 import { getTransactions, addTransaction, deleteTransaction } from './api';
 import { Settings, Trash2 } from 'lucide-react';
@@ -18,7 +19,7 @@ function App() {
   const [totalSavings, setTotalSavings] = useState(0); // New State
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState(null); // 'income', 'expense', 'settings'
+  const [activeModal, setActiveModal] = useState(null); // 'income', 'expense', 'settings', 'recurrent'
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [view, setView] = useState('dashboard'); // 'dashboard', 'summary', 'charts'
@@ -36,7 +37,7 @@ function App() {
     // Passiamo mese e anno alla API
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
-    
+
     const data = await getTransactions(token, month, year);
 
     // If invalid token (backend returns error or empty structure implying auth fail), 
@@ -79,6 +80,18 @@ function App() {
     setIsSubmitting(false);
   };
 
+  const handleAddRecurrentTransaction = async (expense) => {
+    const transaction = {
+      type: 'expense',
+      amount: parseFloat(expense.amount),
+      method: expense.method,
+      category: expense.category,
+      note: expense.label, // Use label as note/description
+      date: new Date().toISOString()
+    };
+    await handleAddTransaction(transaction);
+  };
+
   const handleDelete = async (rowNumber) => {
     if (!confirm('Sei sicuro di voler eliminare questa transazione?')) return;
 
@@ -103,20 +116,20 @@ function App() {
     const newDate = new Date(currentDate);
     const nextMonth = new Date(newDate.setMonth(newDate.getMonth() + 1));
     const today = new Date();
-    
+
     // Non andare oltre il mese corrente reale (opzionale, ma richiesto implicitamente "tornare al foglio del mese corrente")
     // Se "quando sono al mese corrente la frecca dx non è più visibile", allora qui controlliamo solo di non sforare per sicurezza
     if (nextMonth <= today || (nextMonth.getMonth() === today.getMonth() && nextMonth.getFullYear() === today.getFullYear())) {
-        setCurrentDate(nextMonth);
+      setCurrentDate(nextMonth);
     } else {
-        // Se siamo già a oggi, forziamo a oggi (o non facciamo nulla)
-        setCurrentDate(today);
+      // Se siamo già a oggi, forziamo a oggi (o non facciamo nulla)
+      setCurrentDate(today);
     }
   };
 
   const isCurrentMonth = () => {
-      const today = new Date();
-      return currentDate.getMonth() === today.getMonth() && currentDate.getFullYear() === today.getFullYear();
+    const today = new Date();
+    return currentDate.getMonth() === today.getMonth() && currentDate.getFullYear() === today.getFullYear();
   };
 
 
@@ -221,6 +234,7 @@ function App() {
           <ActionButtons
             onAddIncome={() => setActiveModal('income')}
             onAddExpense={() => setActiveModal('expense')}
+            onAddRecurrent={() => setActiveModal('recurrent')}
             onShowSummary={() => setView('summary')}
             onShowCharts={() => setView('charts')}
           />
@@ -238,6 +252,13 @@ function App() {
 
       {activeModal === 'settings' && (
         <SettingsModal onClose={() => setActiveModal(null)} />
+      )}
+
+      {activeModal === 'recurrent' && (
+        <RecurrentExpenseModal
+          onClose={() => setActiveModal(null)}
+          onSelect={handleAddRecurrentTransaction}
+        />
       )}
     </div>
   );
