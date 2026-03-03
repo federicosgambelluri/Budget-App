@@ -49,7 +49,11 @@ export default function RecurrentExpenseModal({ onClose, onSelect }) {
                                 <div>
                                     <div style={{ fontWeight: 600, color: 'var(--color-text)' }}>{expense.label}</div>
                                     <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                        {expense.method === 'buddybank' ? '💳 Buddybank' : '💵 Contanti'}
+                                        {expense.method === 'buddybank' ? '💳 Buddybank' :
+                                            expense.method === 'hype' ? '💳 Hype' :
+                                                expense.method === 'revolut' ? '💳 Revolut' :
+                                                    expense.method === 'unicredit' ? '💳 Unicredit' :
+                                                        '💵 Contanti'}
                                     </div>
                                 </div>
                             </div>

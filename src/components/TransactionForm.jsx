@@ -48,6 +48,7 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
         { id: 'buddybank', label: 'Buddybank', icon: CreditCard },
         { id: 'hype', label: 'Hype', icon: CreditCard },
         { id: 'revolut', label: 'Revolut', icon: CreditCard },
+        { id: 'unicredit', label: 'Unicredit', icon: CreditCard },
     ];
 
     return (
