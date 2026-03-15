@@ -5,16 +5,19 @@ import {
     BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
     LineChart, Line, CartesianGrid
 } from 'recharts';
+import { getTransactionsWithoutMatchedGiroconti } from '../utils';
 
 export default function ChartsView({ transactions, onBack }) {
 
     // 1. Data for Pie Chart (Income vs Expense)
     const pieData = useMemo(() => {
-        const income = transactions
+        const filteredTransactions = getTransactionsWithoutMatchedGiroconti(transactions);
+        
+        const income = filteredTransactions
             .filter(t => t.type === 'income')
             .reduce((acc, t) => acc + Math.abs(parseFloat(t.amount)), 0);
 
-        const expense = transactions
+        const expense = filteredTransactions
             .filter(t => t.type === 'expense')
             .reduce((acc, t) => acc + Math.abs(parseFloat(t.amount)), 0);
 
@@ -26,8 +29,10 @@ export default function ChartsView({ transactions, onBack }) {
 
     // 2. Data for Bar Chart (Expenses by Category)
     const barData = useMemo(() => {
+        const filteredTransactions = getTransactionsWithoutMatchedGiroconti(transactions);
         const categories = {};
-        transactions
+        
+        filteredTransactions
             .filter(t => t.type === 'expense')
             .forEach(t => {
                 const amount = Math.abs(parseFloat(t.amount));
@@ -41,9 +46,10 @@ export default function ChartsView({ transactions, onBack }) {
 
     // 3. Data for Line Chart (Daily Trend)
     const lineData = useMemo(() => {
+        const filteredTransactions = getTransactionsWithoutMatchedGiroconti(transactions);
         const days = {};
         // Sort transactions by date (oldest first)
-        const sorted = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+        const sorted = [...filteredTransactions].sort((a, b) => new Date(a.date) - new Date(b.date));
 
         sorted.forEach(t => {
             const date = new Date(t.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });

@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
 import { ArrowLeft, PieChart } from 'lucide-react';
+import { getTransactionsWithoutMatchedGiroconti } from '../utils';
 
 export default function CategorySummary({ transactions, onBack }) {
     const categoryStats = useMemo(() => {
-        const expenses = transactions.filter(t => t.type === 'expense');
+        const filteredTransactions = getTransactionsWithoutMatchedGiroconti(transactions);
+        const expenses = filteredTransactions.filter(t => t.type === 'expense');
         const totalExpense = expenses.reduce((acc, t) => acc + Math.abs(parseFloat(t.amount)), 0);
 
         const byCategory = expenses.reduce((acc, t) => {

@@ -10,6 +10,7 @@ import Login from './components/Login';
 import { getTransactions, addTransaction, deleteTransaction } from './api';
 import { Settings, Trash2 } from 'lucide-react';
 import LoadingSpinner from './components/LoadingSpinner';
+import { getTransactionsWithoutMatchedGiroconti } from './utils';
 import './index.css';
 
 function App() {
@@ -133,11 +134,13 @@ function App() {
   };
 
 
-  const totalIncome = transactions
+  const filteredForTotals = getTransactionsWithoutMatchedGiroconti(transactions);
+
+  const totalIncome = filteredForTotals
     .filter(t => t.type === 'income')
     .reduce((acc, t) => acc + parseFloat(t.amount), 0);
 
-  const totalExpense = transactions
+  const totalExpense = filteredForTotals
     .filter(t => t.type === 'expense')
     .reduce((acc, t) => acc + parseFloat(t.amount), 0);
 
