@@ -707,3 +707,57 @@ textarea:focus {
     gap: 1rem;
     color: white;
 }
+
+/* ✈️ Viaggi Badge */
+.travel-badge-wrapper {
+    margin-top: 1.25rem;
+    display: flex;
+    justify-content: center;
+}
+
+.travel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);
+    cursor: default;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.travel-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.6);
+}
+
+.travel-badge-icon {
+    animation: flyIn 0.5s ease-out;
+    flex-shrink: 0;
+}
+
+@keyframes flyIn {
+    from { transform: translateX(-6px) rotate(-15deg); opacity: 0; }
+    to   { transform: translateX(0) rotate(0deg); opacity: 1; }
+}
+
+.travel-badge-content {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.travel-badge-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    opacity: 0.85;
+}
+
+.travel-badge-amount {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}

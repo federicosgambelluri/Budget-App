@@ -10,7 +10,7 @@ export default function TransactionForm({ type, onClose, onSubmit, isSubmitting 
     const expenseCategories = [
         'Abbonamenti', 'Aerei', 'Altro', 'Auto e moto', 'Bollette', 'Bus', 'Carburante', 'Giroconto', 'Hotel', 'Istruzione',
         'Palestra', 'Regali', 'Rimborsi', 'Ristoranti', 'Salute e benessere', 'Shopping',
-        'Snack', 'Spesa', 'Svago', 'Telepass', 'Treni'
+        'Snack', 'Spesa', 'Svago', 'Telepass', 'Treni', 'Viaggi'
     ].sort();
 
     const currentCategories = type === 'income' ? incomeCategories : expenseCategories;

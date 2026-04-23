@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wallet, Banknote, PiggyBank, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Wallet, Banknote, PiggyBank, ChevronLeft, ChevronRight, Plane } from 'lucide-react';
 
 export default function Dashboard({
     balance,
@@ -7,6 +7,7 @@ export default function Dashboard({
     totalSavings,
     income,
     expense,
+    travelExpense,
     isLoading,
     currentDate,
     onPrevMonth,
@@ -118,6 +119,23 @@ export default function Dashboard({
                         )}
                     </div>
                 </div>
+
+                {/* Badge Viaggi */}
+                {(travelExpense > 0 || !isLoading) && (
+                    <div className="travel-badge-wrapper">
+                        <div className="travel-badge">
+                            <Plane size={16} className="travel-badge-icon" />
+                            <div className="travel-badge-content">
+                                <span className="travel-badge-label">Viaggi del mese</span>
+                                {isLoading ? (
+                                    <span className="loading-pulse small">...</span>
+                                ) : (
+                                    <span className="travel-badge-amount">{formatCurrency(travelExpense)}</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

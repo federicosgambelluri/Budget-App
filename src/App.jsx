@@ -144,6 +144,10 @@ function App() {
     .filter(t => t.type === 'expense')
     .reduce((acc, t) => acc + parseFloat(t.amount), 0);
 
+  const totalTravel = filteredForTotals
+    .filter(t => t.type === 'expense' && t.category === 'Viaggi')
+    .reduce((acc, t) => acc + parseFloat(t.amount), 0);
+
   if (!token) {
     return <Login onLogin={handleLogin} />;
   }
@@ -196,6 +200,7 @@ function App() {
             totalSavings={totalSavings}
             income={totalIncome}
             expense={totalExpense}
+            travelExpense={totalTravel}
             isLoading={isLoading}
             currentDate={currentDate}
             onPrevMonth={handlePrevMonth}
